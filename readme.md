@@ -1,15 +1,19 @@
 # rori18n
 
-Go CLI for Rails i18n — a full replacement for `i18n-tasks` with capabilities it lacks.
+Go CLI for Rails i18n — a full replacement for `i18n-tasks` with capabilities it
+lacks.
 
 **What i18n-tasks can't do that rori18n can:**
+
 - Extract hardcoded strings from ERB/Ruby and inject `t()` calls automatically
-- Merge sentence fragments split across ERB interpolations into a single `t()` call
+- Merge sentence fragments split across ERB interpolations into a single `t()`
+  call
 - Translate missing keys via Google Cloud Translation with brand-name protection
 - Rename a key across YAML and all source callers in one command
 - Deduplicate identical strings across files and consolidate them to `shared.*`
 
 **What i18n-tasks does that rori18n also does:**
+
 - Lint: exit 1 if any `t('key')` call references an undefined key
 - Audit: report missing, orphaned, and empty keys
 - Prune: delete YAML keys that no source file calls
@@ -34,8 +38,8 @@ go run . <command> [flags]
 
 ## Workflow
 
-Commands have a natural order. Run the full sequence to bootstrap i18n from scratch,
-then use individual commands as needed.
+Commands have a natural order. Run the full sequence to bootstrap i18n from
+scratch, then use individual commands as needed.
 
 ### Step 1 — See what needs extracting
 
@@ -43,8 +47,8 @@ then use individual commands as needed.
 rori18n report --root <rails-app-root>
 ```
 
-Scans all `.erb`, `.rb`, `.haml`, `.slim` files under `app/` and lists every hardcoded
-user-visible string with file and line number. No files are changed.
+Scans all `.erb`, `.rb`, `.haml`, `.slim` files under `app/` and lists every
+hardcoded user-visible string with file and line number. No files are changed.
 
 ```sh
 # CI gate: fail if hardcoded strings exist in changed files
@@ -63,8 +67,11 @@ rori18n generate --root <rails-app-root> --fix
 ```
 
 This does three things in one pass:
-1. Finds strings used in more than one place → writes them to `shared.{lang}.yml`
-2. Finds unique strings → writes them to the correct topic file (e.g. `home.en.yml`)
+
+1. Finds strings used in more than one place → writes them to
+   `shared.{lang}.yml`
+2. Finds unique strings → writes them to the correct topic file (e.g.
+   `home.en.yml`)
 3. Rewrites source files replacing the string with the `t('key')` call
 
 After this, the app works identically — only the source and YAML have changed.
@@ -98,8 +105,8 @@ rori18n merge-fragments --root <rails-app-root> --dry-run
 rori18n merge-fragments --root <rails-app-root> --fix
 ```
 
-Complex cases (boolean operators, nested HTML, multiple arguments) are flagged for
-manual review and never auto-patched.
+Complex cases (boolean operators, nested HTML, multiple arguments) are flagged
+for manual review and never auto-patched.
 
 ### Step 4 — Lint
 
@@ -151,11 +158,13 @@ rori18n translate \
   --protect-file .translate-dictionary.txt
 ```
 
-Translation results are cached in `reports/translate-cache.json` — re-running the
-same source string doesn't hit the API again. Use `--no-cache` to force a fresh call.
+Translation results are cached in `reports/translate-cache.json` — re-running
+the same source string doesn't hit the API again. Use `--no-cache` to force a
+fresh call.
 
 **Write safety:** `translate` only overwrites values that are empty or match
-`^TODO:|^FIXME:` (case-sensitive). Any value written by a human translator is preserved.
+`^TODO:|^FIXME:` (case-sensitive). Any value written by a human translator is
+preserved.
 
 ### Step 6 — Prune dead keys
 
@@ -177,19 +186,19 @@ Understands pluralization — `foo.one` and `foo.other` are kept when source cal
 
 ## All commands
 
-| Command | What it does |
-|---|---|
-| `report` | List hardcoded strings in source (read-only, CI-safe) |
-| `generate` | Extract strings to YAML; optionally replace them with `t()` calls |
-| `merge-fragments` | Merge ERB sentence fragments into single `t()` calls |
-| `lint` | Exit 1 if any `t()` call references an undefined key |
-| `audit` | Report missing, orphaned, empty keys |
-| `add-key` | Add one key-value pair to the correct YAML file |
-| `prune` | Delete YAML keys never referenced in source |
-| `translate` | Fill missing keys via Google Cloud Translation |
-| `analyze` | Find duplicate key names or identical values across files |
-| `consolidate` | Deduplicate keys and rewrite all callers in one shot |
-| `refactor-key` | Rename a key in YAML and all `t()` callers |
+| Command           | What it does                                                      |
+| ----------------- | ----------------------------------------------------------------- |
+| `report`          | List hardcoded strings in source (read-only, CI-safe)             |
+| `generate`        | Extract strings to YAML; optionally replace them with `t()` calls |
+| `merge-fragments` | Merge ERB sentence fragments into single `t()` calls              |
+| `lint`            | Exit 1 if any `t()` call references an undefined key              |
+| `audit`           | Report missing, orphaned, empty keys                              |
+| `add-key`         | Add one key-value pair to the correct YAML file                   |
+| `prune`           | Delete YAML keys never referenced in source                       |
+| `translate`       | Fill missing keys via Google Cloud Translation                    |
+| `analyze`         | Find duplicate key names or identical values across files         |
+| `consolidate`     | Deduplicate keys and rewrite all callers in one shot              |
+| `refactor-key`    | Rename a key in YAML and all `t()` callers                        |
 
 ---
 
@@ -248,7 +257,8 @@ rori18n merge-fragments --root <rails-app-root>
 ```
 
 Complex cases are printed but never auto-patched. They require assigning ERB
-expressions to local variables first (eliminates boolean operators and side effects).
+expressions to local variables first (eliminates boolean operators and side
+effects).
 
 ### `lint`
 
@@ -303,9 +313,9 @@ rori18n add-key \
   --value "Guardar cambios"
 ```
 
-Key is routed to the YAML file matching its top-level namespace
-(`shared.*` → `shared.en.yml`, `dashboard.*` → `dashboard.en.yml`).
-File and intermediate keys are created if they don't exist.
+Key is routed to the YAML file matching its top-level namespace (`shared.*` →
+`shared.en.yml`, `dashboard.*` → `dashboard.en.yml`). File and intermediate keys
+are created if they don't exist.
 
 ### `prune`
 
@@ -371,8 +381,8 @@ rori18n consolidate --root <rails-app-root> --no-prune
 
 ### `refactor-key`
 
-Renames a key across all locale files (all languages by default) and all source callers.
-Old key is deleted immediately — no separate prune step needed.
+Renames a key across all locale files (all languages by default) and all source
+callers. Old key is deleted immediately — no separate prune step needed.
 
 ```sh
 # Dry run first
@@ -441,27 +451,28 @@ config/locales/
 ```
 
 Keys are routed to the file whose name matches the top-level namespace
-(`dashboard.foo.bar` → `dashboard.{lang}.yml`). Unknown namespaces go
-to `shared.{lang}.yml`.
+(`dashboard.foo.bar` → `dashboard.{lang}.yml`). Unknown namespaces go to
+`shared.{lang}.yml`.
 
 ---
 
 ## vs i18n-tasks
 
-| Feature | rori18n | i18n-tasks |
-|---|---|---|
-| Extract hardcoded strings from ERB | ✅ `report`, `generate` | ❌ |
-| Inject `t()` calls into source | ✅ `generate --fix` | ❌ |
-| Merge ERB sentence fragments | ✅ `merge-fragments` | ❌ |
-| Translate missing keys | ✅ `translate` (Google API) | ✅ (multiple backends) |
-| Lint undefined `t()` calls | ✅ `lint` | ✅ `health` / `missing` |
-| Prune orphaned keys | ✅ `prune` | ✅ `remove-unused` |
-| Rename keys + update callers | ✅ `refactor-key` | ✅ `mv` |
-| Deduplicate shared values | ✅ `consolidate` | ❌ |
-| Dynamic key inference | `--pattern` exclusion | `strict: false` wildcard |
-| Rails integration | standalone Go binary | Ruby gem in Gemfile |
+| Feature                            | rori18n                     | i18n-tasks               |
+| ---------------------------------- | --------------------------- | ------------------------ |
+| Extract hardcoded strings from ERB | ✅ `report`, `generate`     | ❌                       |
+| Inject `t()` calls into source     | ✅ `generate --fix`         | ❌                       |
+| Merge ERB sentence fragments       | ✅ `merge-fragments`        | ❌                       |
+| Translate missing keys             | ✅ `translate` (Google API) | ✅ (multiple backends)   |
+| Lint undefined `t()` calls         | ✅ `lint`                   | ✅ `health` / `missing`  |
+| Prune orphaned keys                | ✅ `prune`                  | ✅ `remove-unused`       |
+| Rename keys + update callers       | ✅ `refactor-key`           | ✅ `mv`                  |
+| Deduplicate shared values          | ✅ `consolidate`            | ❌                       |
+| Dynamic key inference              | `--pattern` exclusion       | `strict: false` wildcard |
+| Rails integration                  | standalone Go binary        | Ruby gem in Gemfile      |
 
-i18n-tasks is still useful as a passive health checker (`bundle exec i18n-tasks health`)
-because its Prism-based scanner handles some Rails-specific patterns (before_actions,
-model translations) that rori18n's static scanner does not. Run rori18n for all
-write operations; use i18n-tasks health-only in CI.
+i18n-tasks is still useful as a passive health checker
+(`bundle exec i18n-tasks health`) because its Prism-based scanner handles some
+Rails-specific patterns (before_actions, model translations) that rori18n's
+static scanner does not. Run rori18n for all write operations; use i18n-tasks
+health-only in CI.
