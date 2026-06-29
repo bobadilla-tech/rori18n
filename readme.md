@@ -1,9 +1,12 @@
 # rori18n
 
-Go CLI for Rails i18n — a full replacement for `i18n-tasks` with capabilities it
-lacks.
+Production-grade Rails i18n toolchain. Built at
+[Bobadilla Technologies](https://github.com/bobadilla-tech) and running in
+production across multiple client apps, including
+[Requiems API](https://requiems.xyz)
+([source](https://github.com/bobadilla-tech/requiems-api)).
 
-**What i18n-tasks can't do that rori18n can:**
+Full replacement for `i18n-tasks` write commands, plus capabilities it lacks:
 
 - Extract hardcoded strings from ERB/Ruby and inject `t()` calls automatically
 - Merge sentence fragments split across ERB interpolations into a single `t()`
@@ -12,21 +15,34 @@ lacks.
 - Rename a key across YAML and all source callers in one command
 - Deduplicate identical strings across files and consolidate them to `shared.*`
 
-**What i18n-tasks does that rori18n also does:**
-
-- Lint: exit 1 if any `t('key')` call references an undefined key
-- Audit: report missing, orphaned, and empty keys
-- Prune: delete YAML keys that no source file calls
+Also covers everything i18n-tasks does: lint, audit, prune.
 
 ---
 
-## Requirements
+## Rails projects — use the gem
 
-- Go 1.21+
+Add to your Gemfile — no manual binary install needed:
+
+```ruby
+gem "rori18n-rails", group: :development
+```
+
+```sh
+bundle install
+bundle exec rails g rori18n:install
+bin/rori18n generate --fix --root .
+```
+
+See [gem/README.md](gem/README.md) for full usage docs.
+
+---
+
+## Requirements (CLI / contributors)
+
 - Rails app with `config/locales/{lang}/` layout
 - Google Cloud Translation API service account JSON (only for `translate`)
 
-## Install
+## Install (CLI direct)
 
 ```sh
 go install github.com/bobadilla-tech/rori18n@latest

@@ -5,11 +5,12 @@ Gem::Specification.new do |s|
   s.version     = Rori18n::VERSION
   s.authors     = ["Eliaz Bobadilla"]
   s.email       = ["eliaz.bobadilladev@gmail.com"]
-  s.summary     = "Rails i18n toolchain: extract strings, inject t() calls, translate, prune, refactor keys"
-  s.description = "rori18n is a Rails i18n CLI that replaces i18n-tasks write commands and adds " \
-                  "capabilities it lacks: automatic hardcoded-string extraction from ERB, t() call " \
-                  "injection, ERB fragment merging, Google Cloud Translation, deduplication, and " \
-                  "key refactoring. "
+  s.summary     = "Production-grade Rails i18n toolchain: extract, inject, translate, deduplicate, refactor"
+  s.description = "rori18n replaces i18n-tasks write commands and adds what it lacks: automatic " \
+                  "hardcoded-string extraction from ERB, t() call injection, ERB fragment merging, " \
+                  "Google Cloud Translation with brand-name protection, key deduplication, and " \
+                  "atomic key renaming across YAML and source. Built at Bobadilla Technologies and " \
+                  "running in production across multiple Rails apps."
   s.homepage    = "https://github.com/bobadilla-tech/rori18n"
   s.license     = "MIT"
 

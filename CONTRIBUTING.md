@@ -131,7 +131,7 @@ https://github.com/bobadilla-tech/rori18n/releases/tag/vX.Y.Z
 ```sh
 cd gem
 gem build rori18n-rails.gemspec
-gem push rori18n-rails-X.Y.Z.gem
+gem push rori18n-rails-$(ruby -I lib -r rori18n/version -e "print Rori18n::VERSION").gem
 ```
 
 > **Order matters.** Publish the gem only after CI has uploaded all binaries.
@@ -143,10 +143,10 @@ gem push rori18n-rails-X.Y.Z.gem
 No new binary needed. Use a patch bump and skip tagging.
 
 ```sh
-# Bump to X.Y.Z+1 in version.rb — keep CLI_VERSION pointing at existing tag
+# Bump version in gem/lib/rori18n/version.rb, then:
 cd gem
 gem build rori18n-rails.gemspec
-gem push rori18n-rails-X.Y.Z+1.gem
+gem push rori18n-rails-$(ruby -I lib -r rori18n/version -e "print Rori18n::VERSION").gem
 ```
 
 The installer will still download the binary for the prior tag (`CLI_VERSION`),

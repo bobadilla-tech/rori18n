@@ -3,6 +3,11 @@
 Rails i18n toolchain. Extracts hardcoded strings, injects `t()` calls,
 translates via Google Cloud, deduplicates, and renames keys — all from one CLI.
 
+Built at [Bobadilla Technologies](https://bobadilla.tech) to handle i18n at
+scale across multiple production Rails apps. Battle-tested in
+[Requiems API](https://requiems.xyz)
+([source](https://github.com/bobadilla-tech/requiems-api)), among others.
+
 A drop-in replacement for `i18n-tasks` write commands with capabilities it
 lacks.
 
