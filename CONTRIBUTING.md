@@ -90,8 +90,8 @@ end
 
 ## Release process
 
-Version in `gem/lib/rori18n/version.rb` is the single source of truth.
-It controls both the gem version and which GitHub Release tag the installer
+Version in `gem/lib/rori18n/version.rb` is the single source of truth. It
+controls both the gem version and which GitHub Release tag the installer
 downloads from.
 
 ### Full release (CLI + gem)
@@ -156,11 +156,11 @@ which already exists. No CI run required.
 
 ## Version policy
 
-| Bump | When |
-|---|---|
+| Bump  | When                                                          |
+| ----- | ------------------------------------------------------------- |
 | Major | Breaking CLI flag changes or incompatible YAML layout changes |
-| Minor | New commands, new flags, new gem features |
-| Patch | Bug fixes, docs, gem-only changes |
+| Minor | New commands, new flags, new gem features                     |
+| Patch | Bug fixes, docs, gem-only changes                             |
 
 Gem version and CLI version are kept in sync. A gem at `1.2.0` always downloads
 the binary tagged `v1.2.0`.
@@ -181,10 +181,10 @@ the binary tagged `v1.2.0`.
 
 Supported targets are defined in two places — keep them in sync:
 
-| File | What to update |
-|---|---|
-| `gem/lib/rori18n/platform.rb` | `SUPPORTED` hash — maps `[os, arch]` to asset name |
-| `.github/workflows/release.yml` | `matrix.include` — adds the build job |
+| File                            | What to update                                     |
+| ------------------------------- | -------------------------------------------------- |
+| `gem/lib/rori18n/platform.rb`   | `SUPPORTED` hash — maps `[os, arch]` to asset name |
+| `.github/workflows/release.yml` | `matrix.include` — adds the build job              |
 
 Adding Linux arm64:
 
@@ -231,9 +231,9 @@ when they match `IsPlaceholder()` (empty or `^TODO:|^FIXME:`). Never add a write
 path that silently overwrites existing human-written values.
 
 **Key routing** — `locale.UpsertTopicFile()` routes keys by top-level namespace.
-`dashboard.foo` → `dashboard.{lang}.yml`. Unknown namespaces → `shared.{lang}.yml`.
-Don't break this without updating `gem/README.md`.
+`dashboard.foo` → `dashboard.{lang}.yml`. Unknown namespaces →
+`shared.{lang}.yml`. Don't break this without updating `gem/README.md`.
 
-**All-lang by default** — `refactor-key` renames across every language directory.
-`discoverLangs()` reads subdirectories of `config/locales/`. New language
-directories are picked up automatically — no code change needed.
+**All-lang by default** — `refactor-key` renames across every language
+directory. `discoverLangs()` reads subdirectories of `config/locales/`. New
+language directories are picked up automatically — no code change needed.
