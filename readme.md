@@ -26,7 +26,20 @@ lacks.
 - Rails app with `config/locales/{lang}/` layout
 - Google Cloud Translation API service account JSON (only for `translate`)
 
-## Build
+## Install
+
+```sh
+go install github.com/bobadilla-tech/rori18n@latest
+```
+
+This puts the `rori18n` binary in `$(go env GOPATH)/bin` (usually `~/go/bin`).
+Add that directory to your `PATH` if it isn't already:
+
+```sh
+export PATH="$PATH:$(go env GOPATH)/bin"
+```
+
+**From source** (contributors / local dev):
 
 ```sh
 go build -o rori18n .
