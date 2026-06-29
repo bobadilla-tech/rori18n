@@ -51,11 +51,11 @@ Authentication:
   Set GOOGLE_APPLICATION_CREDENTIALS to a service account JSON key file.
 
 Examples:
-  locale-sync translate --to=es,fr --root=../../apps/dashboard
-  locale-sync translate --to=all --dry-run
-  locale-sync translate --to=es --protect-words=NeverBounce,IPstack,AbstractAPI
-  locale-sync translate --to=es --protect-file=.translate-dictionary.txt
-  locale-sync translate --to=es --report-file=reports/translate.json`,
+  rori18n translate --to=es,fr --root=../../apps/dashboard
+  rori18n translate --to=all --dry-run
+  rori18n translate --to=es --protect-words=NeverBounce,IPstack,AbstractAPI
+  rori18n translate --to=es --protect-file=.translate-dictionary.txt
+  rori18n translate --to=es --report-file=reports/translate.json`,
 	RunE: runTranslate,
 }
 

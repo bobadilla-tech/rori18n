@@ -20,9 +20,9 @@ var addKeyCmd = &cobra.Command{
 the key's namespace, creating the file if needed.
 
 Examples:
-  locale-sync add-key --key shared.danger_zone.cancel_btn --value "Cancel" \
+  rori18n add-key --key shared.danger_zone.cancel_btn --value "Cancel" \
     --root ../../apps/dashboard
-  locale-sync add-key --key admin.users.show.page_title --value "User Details - %{email}" \
+  rori18n add-key --key admin.users.show.page_title --value "User Details - %{email}" \
     --root ../../apps/dashboard --lang en --dry-run`,
 	RunE: runAddKey,
 }

@@ -23,9 +23,9 @@ var consolidateCmd = &cobra.Command{
 Always run with --dry-run first to review what will change.
 
 Examples:
-  locale-sync consolidate --root ../../apps/dashboard --lang en --dry-run
-  locale-sync consolidate --root ../../apps/dashboard --lang en
-  locale-sync consolidate --root ../../apps/dashboard --lang en --no-prune`,
+  rori18n consolidate --root ../../apps/dashboard --lang en --dry-run
+  rori18n consolidate --root ../../apps/dashboard --lang en
+  rori18n consolidate --root ../../apps/dashboard --lang en --no-prune`,
 	RunE: runConsolidate,
 }
 
@@ -170,9 +170,9 @@ func runConsolidate(_ *cobra.Command, _ []string) error {
 	fmt.Printf("Done: %d key(s) consolidated · %d YAML file(s) updated · %d source file(s) rewritten.\n",
 		len(candidates), totalYAMLFiles, totalSourceFiles)
 	if !consolidateNoPrune {
-		fmt.Println("Run `locale-sync translate --to es,fr` to sync translations.")
+		fmt.Println("Run `rori18n translate --to es,fr` to sync translations.")
 	} else {
-		fmt.Println("Run `locale-sync prune` to delete old keys after review.")
+		fmt.Println("Run `rori18n prune` to delete old keys after review.")
 	}
 	return nil
 }

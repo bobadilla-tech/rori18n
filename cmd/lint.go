@@ -69,7 +69,7 @@ func runLint(_ *cobra.Command, _ []string) error {
 		fmt.Fprintf(os.Stderr, "%s:%d: error: missing key %q\n", u.File, u.Line, u.Key)
 	}
 	if len(missing) > 0 {
-		fmt.Fprintf(os.Stderr, "\nlint: %d missing key(s). Add with: locale-sync add-key --key <key> --value \"<value>\"\n", len(missing))
+		fmt.Fprintf(os.Stderr, "\nlint: %d missing key(s). Add with: rori18n add-key --key <key> --value \"<value>\"\n", len(missing))
 	}
 
 	for _, b := range bareIssues {

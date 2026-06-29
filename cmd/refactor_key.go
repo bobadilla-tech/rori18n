@@ -30,13 +30,13 @@ It:
   2. Writes the value under --new in the same YAML file (or shared if --shared)
   3. Rewrites every t('old.key') / t("old.key") reference in app/ source to t('new.key')
 
-The old key is NOT deleted — run ` + "`locale-sync prune`" + ` afterwards to clean it up
+The old key is NOT deleted — run ` + "`rori18n prune`" + ` afterwards to clean it up
 once you've verified the app works correctly.
 
 Examples:
-  locale-sync refactor-key --old shared.common.copy_btn --new shared.buttons.copy \
+  rori18n refactor-key --old shared.common.copy_btn --new shared.buttons.copy \
     --root ../../apps/dashboard --lang en
-  locale-sync refactor-key --old shared.close --new shared.buttons.close \
+  rori18n refactor-key --old shared.close --new shared.buttons.close \
     --root ../../apps/dashboard --lang en --dry-run`,
 	RunE: runRefactorKey,
 }

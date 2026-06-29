@@ -158,7 +158,7 @@ func printSummary(dups locale.Duplicates, entries []locale.Entry) {
 	fmt.Printf("  Duplicate text values:            %d\n", len(dups.ValueDups))
 	fmt.Println()
 	if autoMerge > 0 {
-		fmt.Printf("Run `locale-sync generate --root %s` to consolidate duplicates into shared file.\n", rootPath)
+		fmt.Printf("Run `rori18n generate --root %s` to consolidate duplicates into shared file.\n", rootPath)
 	}
 }
 

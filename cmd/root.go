@@ -20,9 +20,9 @@ func validateLangCode(code string) error {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "locale-sync",
+	Use:   "rori18n",
 	Short: "Extract and deduplicate i18n strings in Rails apps",
-	Long: `locale-sync scans a Rails application and:
+	Long: `rori18n scans a Rails application and:
   - Finds duplicate YAML locale keys across multiple files
   - Finds identical string values stored under different keys
   - Extracts hardcoded strings from Ruby/ERB source files

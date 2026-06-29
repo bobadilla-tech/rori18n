@@ -26,8 +26,8 @@ removes keys that are defined but never called anywhere in the codebase.
 Always run with --dry-run first to review what will be deleted.
 
 Examples:
-  locale-sync prune --root=../../apps/dashboard --lang=en --dry-run
-  locale-sync prune --root=../../apps/dashboard --lang=en`,
+  rori18n prune --root=../../apps/dashboard --lang=en --dry-run
+  rori18n prune --root=../../apps/dashboard --lang=en`,
 	RunE: runPrune,
 }
 

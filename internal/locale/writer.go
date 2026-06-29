@@ -30,7 +30,7 @@ func BuildMergeCandidates(dups []KeyDupGroup, lang string) []MergeCandidate {
 		}
 		suggested := SuggestSharedKey(lang, g.KeyName)
 		if seen[suggested] {
-			fmt.Fprintf(os.Stderr, "locale-sync: SuggestedKey collision on %q (from %q) — skipping\n", suggested, g.KeyName)
+			fmt.Fprintf(os.Stderr, "rori18n: SuggestedKey collision on %q (from %q) — skipping\n", suggested, g.KeyName)
 			continue
 		}
 		seen[suggested] = true

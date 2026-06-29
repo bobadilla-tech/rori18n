@@ -31,8 +31,8 @@ Exit codes:
   1  fragments remain that need attention
 
 Examples:
-  locale-sync merge-fragments --root ../../apps/dashboard --dry-run
-  locale-sync merge-fragments --root ../../apps/dashboard --fix`,
+  rori18n merge-fragments --root ../../apps/dashboard --dry-run
+  rori18n merge-fragments --root ../../apps/dashboard --fix`,
 	SilenceUsage: true,
 	RunE:         runMergeFragments,
 }
