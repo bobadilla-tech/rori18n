@@ -5,9 +5,11 @@ Gem::Specification.new do |s|
   s.version     = Rori18n::VERSION
   s.authors     = ["Eliaz Bobadilla"]
   s.email       = ["eliaz.bobadilladev@gmail.com"]
-  s.summary     = "Use rori18n Go CLI as a Rails development dependency"
-  s.description = "Wraps the rori18n Go CLI tool so it behaves like a native Rails dev dependency. " \
-                  "Downloads the correct binary on first run. No manual installation required."
+  s.summary     = "Rails i18n toolchain: extract strings, inject t() calls, translate, prune, refactor keys"
+  s.description = "rori18n is a Rails i18n CLI that replaces i18n-tasks write commands and adds " \
+                  "capabilities it lacks: automatic hardcoded-string extraction from ERB, t() call " \
+                  "injection, ERB fragment merging, Google Cloud Translation, deduplication, and " \
+                  "key refactoring. "
   s.homepage    = "https://github.com/bobadilla-tech/rori18n"
   s.license     = "MIT"
 
@@ -20,6 +22,7 @@ Gem::Specification.new do |s|
     "*.gemspec",
   ]
 
+  s.bindir        = "exe"
   s.executables   = ["rori18n"]
   s.require_paths = ["lib"]
 
