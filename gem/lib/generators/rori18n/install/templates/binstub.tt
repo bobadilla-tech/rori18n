@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "bundler/setup"
+require "rori18n-rails"
+
+Rori18n::Runner.run(ARGV)

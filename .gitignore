@@ -2,7 +2,7 @@ google.json
 .env
 .translation-cache.json
 reports/
-rori18n
+/rori18n
 
 # gem build artifacts
 gem/Gemfile.lock
