@@ -1,10 +1,11 @@
 # rori18n
 
+[![codecov](https://codecov.io/gh/bobadilla-tech/rori18n/graph/badge.svg?token=N3O0R9J0SN)](https://codecov.io/gh/bobadilla-tech/rori18n)
+
 Production-grade Rails i18n toolchain. Built at
 [Bobadilla Technologies](https://github.com/bobadilla-tech) and running in
 production across multiple client apps, including
-[Requiems API](https://requiems.xyz)
-([source](https://github.com/bobadilla-tech/requiems-api)).
+[Requiems API](https://requiems.xyz).
 
 Full replacement for `i18n-tasks` write commands, plus capabilities it lacks:
 
