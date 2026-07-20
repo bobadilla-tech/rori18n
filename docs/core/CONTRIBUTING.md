@@ -1,5 +1,7 @@
 # Contributing & Maintaining rori18n
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for package internals.
+
 ## Repo layout
 
 ```

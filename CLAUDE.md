@@ -23,7 +23,8 @@ internal/
   translate/                Google Cloud Translation API client
 ```
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for full package internals.
+See [docs/core/ARCHITECTURE.md](docs/core/ARCHITECTURE.md) for full package
+internals.
 
 ## Key invariants
 
