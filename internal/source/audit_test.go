@@ -244,6 +244,56 @@ func TestAudit_UsedKeyNotOrphaned(t *testing.T) {
 	}
 }
 
+func TestRegression_DynamicScopeKeysNotOrphaned(t *testing.T) {
+	root := t.TempDir()
+	appViews := filepath.Join(root, "app", "views", "systems")
+	os.MkdirAll(appViews, 0o755)
+	viewFile := filepath.Join(appViews, "index.html.erb")
+	os.WriteFile(viewFile, []byte(`<%= t("systems.index.cards.#{slug.tr('-', '_')}.title") %>`), 0o644)
+
+	definedKeys := map[string]bool{
+		"en.systems.index.cards.manufacturing.title": true,
+	}
+
+	result, err := Audit(root, "en", definedKeys)
+	if err != nil {
+		t.Fatalf("Audit: %v", err)
+	}
+	for _, k := range result.OrphanedKeys {
+		if k == "en.systems.index.cards.manufacturing.title" {
+			t.Errorf("dynamically-referenced key wrongly orphaned: %q", k)
+		}
+	}
+	found := false
+	for _, d := range result.DynamicKeys {
+		if d.Prefix == "systems.index.cards" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("expected dynamic call with prefix %q to be tracked; got: %v", "systems.index.cards", result.DynamicKeys)
+	}
+}
+
+func TestRegression_FullyDynamicScopeCallTracked(t *testing.T) {
+	root := t.TempDir()
+	appViews := filepath.Join(root, "app", "views", "industries")
+	os.MkdirAll(appViews, 0o755)
+	viewFile := filepath.Join(appViews, "show.html.erb")
+	os.WriteFile(viewFile, []byte(`<%= t("#{i18n_scope}.hero.headline") %>`), 0o644)
+
+	result, err := Audit(root, "en", map[string]bool{})
+	if err != nil {
+		t.Fatalf("Audit: %v", err)
+	}
+	if len(result.DynamicKeys) != 1 {
+		t.Fatalf("expected 1 dynamic key usage, got %d: %v", len(result.DynamicKeys), result.DynamicKeys)
+	}
+	if result.DynamicKeys[0].Prefix != "" {
+		t.Errorf("expected empty prefix for fully-dynamic scope call, got %q", result.DynamicKeys[0].Prefix)
+	}
+}
+
 func TestAudit_MissingKeyDetected(t *testing.T) {
 	root := t.TempDir()
 	appViews := filepath.Join(root, "app", "views")
@@ -332,6 +382,40 @@ func TestTCallRe_NoMatchOnVariableAssignment(t *testing.T) {
 	// Variables whose names start with 't' (e.g. title_text) must not trigger.
 	if tCallRe.MatchString(`title_text = "My Title"`) {
 		t.Error("tCallRe must not match variable assignments")
+	}
+}
+
+// ── dynamicTCallRe ────────────────────────────────────────────────────────────
+// These tests guard the interpolated-key detection used to protect keys
+// referenced only via t("#{scope}.key")-style calls from being wrongly
+// orphaned (and deleted by prune) — tCallRe cannot match these at all.
+
+func TestDynamicTCallRe_MatchesLeadingInterpolation(t *testing.T) {
+	m := dynamicTCallRe.FindStringSubmatch(`t("#{i18n_scope}.hero.headline")`)
+	if len(m) < 2 || m[1] != "" {
+		t.Errorf("expected empty prefix, got %v", m)
+	}
+}
+
+func TestDynamicTCallRe_MatchesMidKeyInterpolation(t *testing.T) {
+	m := dynamicTCallRe.FindStringSubmatch(`t("systems.index.cards.#{slug.tr('-', '_')}.title")`)
+	if len(m) < 2 || m[1] != "systems.index.cards." {
+		t.Errorf("expected prefix %q, got %v", "systems.index.cards.", m)
+	}
+}
+
+func TestDynamicTCallRe_NoMatchOnPlainCall(t *testing.T) {
+	if m := dynamicTCallRe.FindStringSubmatch(`t("tools.heading")`); m != nil {
+		t.Errorf("plain call should not match dynamicTCallRe, got %v", m)
+	}
+}
+
+func TestTCallRe_NoMatchOnInterpolatedScope(t *testing.T) {
+	// Locks in the root-cause bug: tCallRe must never partially match an
+	// interpolated call — a future regex tweak that made it match a garbage
+	// partial key would be worse than matching nothing.
+	if m := tCallRe.FindStringSubmatch(`t("#{i18n_scope}.hero.headline")`); m != nil {
+		t.Errorf("tCallRe should not match interpolated call, got %v", m)
 	}
 }
 

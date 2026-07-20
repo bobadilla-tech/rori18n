@@ -29,11 +29,31 @@ type AuditResult struct {
 	// RelativeKeys: t('.key') calls that need view-path context to resolve;
 	// excluded from MissingKeys to avoid false positives.
 	RelativeKeys []KeyUsage
+	// DynamicKeys: t() calls containing #{} interpolation. Orphan candidates
+	// whose key starts with an extractable, non-empty static prefix from one
+	// of these calls are excluded from OrphanedKeys. Empty-prefix calls are
+	// tracked here for diagnostics only — not enough info to auto-exclude.
+	DynamicKeys []DynamicKeyUsage
 }
 
 // tCallRe captures the key argument from t(), I18n.t(), and translate() calls.
 // Handles both dot-notation keys and relative keys (starting with .).
 var tCallRe = regexp.MustCompile(`(?:I18n\.t|translate|\bt)\s*\(?\s*["'](\.?[\w.]+)["']`)
+
+// DynamicKeyUsage is a t() call whose key argument contains Ruby string
+// interpolation (e.g. t("#{scope}.title")). tCallRe cannot match these at
+// all, so without this detection their defined keys look orphaned and
+// `prune` deletes them. Prefix is the static text before the first "#{";
+// empty when interpolation is the first character — such calls cannot be
+// safely narrowed to specific keys and are surfaced as a diagnostic only.
+type DynamicKeyUsage struct {
+	KeyUsage
+	Prefix string
+}
+
+// dynamicTCallRe matches t()-style calls containing "#{" and captures the
+// static prefix before the first interpolation (may be empty).
+var dynamicTCallRe = regexp.MustCompile(`(?:I18n\.t|translate|\bt)\s*\(?\s*["']([\w.]*)#\{`)
 
 // Audit cross-references all t() calls in source against the provided YAML keys.
 // definedKeys is a set of full dot-notation keys from the locale YAML files.
@@ -61,6 +81,7 @@ func Audit(root, lang string, definedKeys map[string]bool) (AuditResult, error) 
 	type chanMsg struct {
 		abs []KeyUsage
 		rel []KeyUsage
+		dyn []DynamicKeyUsage
 	}
 	msgCh := make(chan chanMsg, 512)
 
@@ -72,7 +93,7 @@ func Audit(root, lang string, definedKeys map[string]bool) (AuditResult, error) 
 			defer wg.Done()
 			for path := range fileCh {
 				r := extractTCalls(path, root)
-				msgCh <- chanMsg{abs: r.absolute, rel: r.relative}
+				msgCh <- chanMsg{abs: r.absolute, rel: r.relative, dyn: r.dynamic}
 			}
 		}()
 	}
@@ -82,6 +103,7 @@ func Audit(root, lang string, definedKeys map[string]bool) (AuditResult, error) 
 	}()
 
 	var allUsages, allRelative []KeyUsage
+	var allDynamic []DynamicKeyUsage
 	usedSet := map[string]bool{}
 	for msg := range msgCh {
 		allUsages = append(allUsages, msg.abs...)
@@ -99,6 +121,14 @@ func Audit(root, lang string, definedKeys map[string]bool) (AuditResult, error) 
 				allUsages = append(allUsages, KeyUsage{Key: resolved, File: u.File, Line: u.Line})
 			}
 		}
+		allDynamic = append(allDynamic, msg.dyn...)
+	}
+
+	var dynamicPrefixes []string
+	for _, d := range allDynamic {
+		if d.Prefix != "" {
+			dynamicPrefixes = append(dynamicPrefixes, d.Prefix)
+		}
 	}
 
 	// Orphaned: defined but never called.
@@ -112,6 +142,9 @@ func Audit(root, lang string, definedKeys map[string]bool) (AuditResult, error) 
 			continue
 		}
 		if isPluralizationForm(stripped, usedSet) || isPluralizationForm(key, usedSet) {
+			continue
+		}
+		if matchesDynamicPrefix(stripped, dynamicPrefixes) || matchesDynamicPrefix(key, dynamicPrefixes) {
 			continue
 		}
 		orphaned = append(orphaned, key)
@@ -138,12 +171,26 @@ func Audit(root, lang string, definedKeys map[string]bool) (AuditResult, error) 
 		OrphanedKeys: orphaned,
 		MissingKeys:  missing,
 		RelativeKeys: allRelative,
+		DynamicKeys:  allDynamic,
 	}, nil
+}
+
+// matchesDynamicPrefix reports whether key falls under a statically-derived
+// prefix from a t() call containing #{} interpolation, protecting it from
+// being reported orphaned (and from prune deleting it).
+func matchesDynamicPrefix(key string, prefixes []string) bool {
+	for _, p := range prefixes {
+		if key == p || strings.HasPrefix(key, p+".") {
+			return true
+		}
+	}
+	return false
 }
 
 type tCallResult struct {
 	absolute []KeyUsage
 	relative []KeyUsage
+	dynamic  []DynamicKeyUsage
 }
 
 func extractTCalls(path, root string) tCallResult {
@@ -180,6 +227,13 @@ func extractTCalls(path, root string) tCallResult {
 				continue
 			}
 			res.absolute = append(res.absolute, KeyUsage{Key: raw, File: short, Line: lineNum})
+		}
+		for _, m := range dynamicTCallRe.FindAllStringSubmatch(line, -1) {
+			prefix := strings.TrimSuffix(m[1], ".")
+			res.dynamic = append(res.dynamic, DynamicKeyUsage{
+				KeyUsage: KeyUsage{Key: prefix, File: short, Line: lineNum},
+				Prefix:   prefix,
+			})
 		}
 	}
 	return res

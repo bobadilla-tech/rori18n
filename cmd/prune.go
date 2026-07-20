@@ -59,6 +59,10 @@ func runPrune(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("audit: %w", err)
 	}
 
+	if n := len(result.DynamicKeys); n > 0 {
+		fmt.Printf("Note: %d dynamic t() call(s) with #{} interpolation found — keys under resolvable static prefixes were already excluded above; run `rori18n audit` for details.\n\n", n)
+	}
+
 	orphaned := result.OrphanedKeys
 	if prunePattern != "" {
 		re, err := regexp.Compile(prunePattern)

@@ -12,6 +12,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// ArraySentinel is the synthetic Value written for YAML sequence-valued keys
+// so t('foo.items') calls resolve without the key being reported missing.
+// It must never be sent to a translation API or overwritten by the writer.
+const ArraySentinel = "[array]"
+
 // Entry is a single flattened i18n key-value pair from a locale file.
 type Entry struct {
 	Key       string // full dot-notation path e.g. "en.tools.quotes.demo.error_rate_limit"
@@ -203,7 +208,7 @@ func flattenNode(node *yaml.Node, prefix, file, short string, entries *[]Entry) 
 			*entries = append(*entries, Entry{
 				Key:       prefix,
 				KeyName:   parts[len(parts)-1],
-				Value:     "[array]",
+				Value:     ArraySentinel,
 				File:      file,
 				ShortPath: short,
 				Line:      node.Line,

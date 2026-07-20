@@ -546,7 +546,7 @@ func looksLikeCode(s string) bool {
 	// High density of hyphens (CSS classes like "flex items-center gap-3")
 	hyphens := strings.Count(s, "-")
 	words := len(strings.Fields(s))
-	if words > 1 && hyphens >= words-1 {
+	if words >= 3 && hyphens >= words-1 {
 		return true
 	}
 	// Single-word strings with 2+ hyphens are technical tokens — HTTP headers
@@ -775,10 +775,26 @@ func scanOptionsArray(line, trimmed, short string, lineNum int) []HardcodedStrin
 
 // blockTagOpenRe matches a block-level opening tag that has NO inline content
 // (the > is at the end of the trimmed line, so text lives on the next lines).
-var blockTagOpenRe = regexp.MustCompile(`^<(p|h[1-6]|li|dt|dd|td|th|label|option)(\s[^>]*)?>$`)
+var blockTagOpenRe = regexp.MustCompile(`^<(p|h[1-6]|li|dt|dd|td|th|label|option|a|button)(\s[^>]*)?>$`)
 
 // blockTagCloseRe matches the corresponding closing tag on its own trimmed line.
-var blockTagCloseRe = regexp.MustCompile(`^</(p|h[1-6]|li|dt|dd|td|th|label|option)>`)
+var blockTagCloseRe = regexp.MustCompile(`^</(p|h[1-6]|li|dt|dd|td|th|label|option|a|button)>`)
+
+// decorativeMarkupPrefixes are self-contained icon/markup lines commonly
+// nested inside <a>/<button> alongside visible text (e.g. an SVG icon next
+// to a label). Lines starting with these are skipped during multi-line
+// lookahead instead of terminating the scan, so text after an icon is
+// still found.
+var decorativeMarkupPrefixes = []string{"<svg", "</svg", "<path", "<polygon", "<pre", "</pre", "<code", "</code"}
+
+func isDecorativeMarkupLine(s string) bool {
+	for _, p := range decorativeMarkupPrefixes {
+		if strings.HasPrefix(s, p) {
+			return true
+		}
+	}
+	return false
+}
 
 // scanMultiLineTagContent detects text content that spans multiple lines inside
 // a single block element, e.g.:
@@ -796,23 +812,35 @@ func scanMultiLineTagContent(lines []string, short string) []HardcodedString {
 			continue
 		}
 
-		openMatch := blockTagOpenRe.FindStringSubmatch(trimmed)
+		openMatch := blockTagOpenRe.FindStringSubmatch(erbTagRe.ReplaceAllString(trimmed, ""))
 		if openMatch == nil {
 			continue
 		}
 		tagName := openMatch[1]
 
-		// Collect text-only lines until we hit any tag (max 8-line lookahead).
+		// Collect text-only lines until we reach the closing tag (max 8-line
+		// lookahead). Decorative markup lines (icons, nested self-closing tags)
+		// are skipped rather than treated as end-of-element, so text after an
+		// icon is still found.
 		var textParts []string
 		j := i + 1
 		for j < len(lines) && j-i <= 8 {
 			next := strings.TrimSpace(lines[j])
-			if strings.Contains(next, "<") || strings.Contains(next, ">") {
+			if next == "" {
+				j++
+				continue
+			}
+			if strings.HasPrefix(next, "</"+tagName+">") {
 				break
 			}
-			if next != "" {
-				textParts = append(textParts, next)
+			if strings.Contains(next, "<") || strings.Contains(next, ">") {
+				if isDecorativeMarkupLine(next) {
+					j++
+					continue
+				}
+				break
 			}
+			textParts = append(textParts, next)
 			j++
 		}
 

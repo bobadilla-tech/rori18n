@@ -37,7 +37,7 @@ func LintValues(entries []Entry) []LintFinding {
 	var out []LintFinding
 	for _, e := range entries {
 		v := e.Value
-		if v == "" || v == "[array]" {
+		if v == "" || v == ArraySentinel {
 			continue
 		}
 		if reason := entryReason(e.KeyName, v); reason != "" {
@@ -58,6 +58,7 @@ func entryReason(keyName, v string) string {
 	if strings.HasSuffix(keyName, "_html") && htmlWithClassRe.MatchString(v) {
 		return "HTML with CSS/style classes in _html key — move styling to view, use %{variable} interpolation for formatting"
 	}
+	
 	if !strings.HasSuffix(keyName, "_html") && knownHtmlTagRe.MatchString(v) {
 		return "HTML tag in non-_html key — Rails won't html_safe this automatically; move markup to view"
 	}
@@ -68,11 +69,14 @@ func entryReason(keyName, v string) string {
 	if strings.Count(v, "@") == 1 && !strings.Contains(v, "\n") {
 		return "email address — hardcode the address in source, not in a locale file"
 	}
+
 	if !strings.Contains(v, " ") && strings.Count(v, "-") >= 2 {
 		return "HTTP header or kebab identifier — technical token, does not need translation"
 	}
+
 	if metricCodeRe.MatchString(v) {
 		return "metric/version code (e.g. p50, p99) — technical abbreviation, does not need translation"
 	}
+
 	return ""
 }

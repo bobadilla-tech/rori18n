@@ -56,6 +56,9 @@ func TestLooksLikeCode(t *testing.T) {
 		{"normal sentence", "Submit your form today", false},
 		{"two css keywords", "px-4 flex items", true},
 		{"one css keyword", "flex layout", false}, // only 1 match
+		{"hyphenated compound two words", "Enterprise-scale APIs", false},
+		{"hyphenated compound three words ok", "Sign-up and login", false},
+		{"real css class not regression", "flex items-center gap-3", true},
 		// Stimulus controller#action descriptors must never be flagged as user-facing text.
 		{"stimulus bare action", "modal#close", true},
 		{"stimulus with event", "click->modal#close", true},
@@ -451,5 +454,25 @@ func TestScanErbTernary_ShortStringIgnored(t *testing.T) {
 		if h.Text == "No" {
 			t.Errorf("'No' (2 chars) should not be detected")
 		}
+	}
+}
+
+// ── scanMultiLineTagContent ─────────────────────────────────────────────────
+
+func TestScanBareTextNode_InsideMultilineAnchor(t *testing.T) {
+	lines := []string{
+		`<a href="<%= url %>" class="btn">`,
+		`  <svg class="h-4 w-4">`,
+		`    <path d="M8 7V3..."/>`,
+		`  </svg>`,
+		`  Book a Call`,
+		`  <svg class="h-3 w-3">`,
+		`    <path d="M10 6H6..."/>`,
+		`  </svg>`,
+		`</a>`,
+	}
+	got := scanMultiLineTagContent(lines, "test.erb")
+	if len(got) == 0 {
+		t.Error("expected 'Book a Call' to be detected as hardcoded text inside <a>, got 0 results")
 	}
 }

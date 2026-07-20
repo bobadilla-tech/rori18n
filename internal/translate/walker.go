@@ -62,7 +62,7 @@ func FindMissing(
 
 	var missing []MissingEntry
 	for _, e := range sourceEntries {
-		if e.Value == "" {
+		if e.Value == "" || e.Value == locale.ArraySentinel {
 			continue
 		}
 		keyWithoutLang := stripLang(e.Key, sourceLang)

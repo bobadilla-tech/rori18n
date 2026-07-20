@@ -169,6 +169,14 @@ func TestFindMissing_EmptySourceValueSkipped(t *testing.T) {
 	}
 }
 
+func TestFindMissing_ArraySentinelSkipped(t *testing.T) {
+	src := []locale.Entry{makeEntry("en.foo.items", locale.ArraySentinel, "en/foo.en.yml")}
+	got := FindMissing(src, nil, "en", "es", "/root", "")
+	if len(got) != 0 {
+		t.Errorf("array sentinel value should be skipped, got %d", len(got))
+	}
+}
+
 func TestFindMissing_TargetFilePathComputed(t *testing.T) {
 	src := []locale.Entry{makeEntry("en.tools.foo", "Bar", "en/tools.en.yml")}
 	got := FindMissing(src, nil, "en", "es", "/myroot", "")

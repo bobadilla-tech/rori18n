@@ -104,6 +104,9 @@ func runAudit(cmd *cobra.Command, _ []string) error {
 	if n := len(result.RelativeKeys); n > 0 {
 		fmt.Printf("  Relative keys:   %d  (t('.key') — skipped, need view-path resolver)\n", n)
 	}
+	if n := len(result.DynamicKeys); n > 0 {
+		fmt.Printf("  Dynamic keys:    %d  (t() calls with #{} interpolation — resolvable-prefix keys protected from prune; empty-prefix calls need manual review)\n", n)
+	}
 	if showEmptyValues {
 		emptyCount := countEmptyValues(entries)
 		fmt.Printf("  Empty values:    %d  (defined but blank string)\n", emptyCount)
